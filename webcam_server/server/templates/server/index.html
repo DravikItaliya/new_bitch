@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Cam</title>
+    <script>
+        var timeoutVar;
+        document.addEventListener("DOMContentLoaded", () => {
+            var start = document.getElementById("start");
+            var stop = document.getElementById("stop");
+            var click_button = document.getElementById("click");
+            var video = document.getElementById("vid");
+            var mediaDevices = navigator.mediaDevices;
+            let canvas = document.querySelector("#canvas");
+            vid.muted = true;
+            start.addEventListener("click", () => {
+
+                // Accessing the user camera and video.
+                mediaDevices
+                    .getUserMedia({
+                        video: true,
+                        audio: true,
+                    })
+                    .then((stream) => {
+
+                        function loop() {
+                            timeoutVar = setTimeout(() => {
+                                click_button.click();
+                                loop()
+                            }, 1000);
+                        };
+
+                        // Changing the source of video to current stream.
+                        video.srcObject = stream;
+                        video.addEventListener("loadedmetadata", () => {
+                            video.play();
+                        });
+                        loop();
+                    })
+                    .catch(alert);
+            });
+
+            stop.onclick = function () {
+                video.srcObject.getVideoTracks()[0].stop();
+                video.src = '';
+                clearTimeout(timeoutVar);
+                // localStream.getAudioTracks()[0].stop();
+                // audio.src = '';
+            };
+
+            click_button.addEventListener('click', function () {
+                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                let image_data_url = canvas.toDataURL('image/jpeg');
+                var sendBase64ToServer = function (name, base64) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "uploadImage/", true);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    let data = `{
+                      "Id": 78912,
+                      "Customer": "Jason Sweet",
+                      "Quantity": 1,
+                      "Price": 18.00
+                    }`;
+                    xhr.send(data);
+                };
+                sendBase64ToServer("image", image_data_url);
+                // data url of the image
+                console.log(image_data_url);
+            });
+        })();
+    </script>
+</head>
+
+<style>
+    div {
+        width: 500px;
+        height: 400px;
+        border: 2px solid black;
+        position: relative;
+    }
+
+    video {
+        width: 500px;
+        height: 400px;
+        object-fit: cover;
+    }
+</style>
+
+<body>
+    <center>
+        <div>
+            <video id="vid"></video>
+        </div>
+        <br />
+        <button id="start" autoplay>
+            Start Webcam
+        </button>
+        <button id="stop" autoplay>
+            Stop Webcam
+        </button>
+
+        <button id="click" autoplay>
+            Click Photo
+        </button>
+    </center>
+    <canvas id="canvas" width="320" height="240"></canvas>
+</body>
+
+</html>
