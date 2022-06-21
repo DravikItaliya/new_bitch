@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Web Cam</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         var timeoutVar;
         document.addEventListener("DOMContentLoaded", () => {
@@ -16,6 +17,7 @@
             var mediaDevices = navigator.mediaDevices;
             let canvas = document.querySelector("#canvas");
             vid.muted = true;
+            var ctr = 5;
             start.addEventListener("click", () => {
 
                 // Accessing the user camera and video.
@@ -25,20 +27,40 @@
                         audio: true,
                     })
                     .then((stream) => {
-
-                        function loop() {
-                            timeoutVar = setTimeout(() => {
-                                click_button.click();
-                                loop()
-                            }, 1000);
-                        };
-
                         // Changing the source of video to current stream.
                         video.srcObject = stream;
                         video.addEventListener("loadedmetadata", () => {
                             video.play();
                         });
-                        loop();
+                        
+                        function sleep(ms) {
+                            return new Promise(resolve => setTimeout(resolve, ms));
+                        }
+
+                        async function send_data() {
+                            var photos = [];
+                            for (i = 0; i < 5; i++) {
+                                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                                let image_data_url = canvas.toDataURL('image/png');
+                                photos[i] = image_data_url;
+                                await sleep(1000);
+                            }
+                            
+                            $.ajax({
+                                type: "POST",
+                                url: "/uploadImage/",
+                                contentType: 'application/json',
+                                dataType: 'JSON',
+                                cache: false,
+                                data: {data:photos},
+                                success: function(html){
+                                    console.log(photos);
+                                    console.log("uploaded all images");
+                                }
+                            });
+                        }
+
+                        send_data();
                     })
                     .catch(alert);
             });
@@ -47,24 +69,31 @@
                 video.srcObject.getVideoTracks()[0].stop();
                 video.src = '';
                 clearTimeout(timeoutVar);
+                ctr = 5;
                 // localStream.getAudioTracks()[0].stop();
                 // audio.src = '';
             };
 
             click_button.addEventListener('click', function () {
-                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-                let image_data_url = canvas.toDataURL('image/jpeg');
+                
                 var sendBase64ToServer = function (name, base64) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open("POST", "uploadImage/", true);
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    let data = `{
-                      "Id": 78912,
-                      "Customer": "Jason Sweet",
-                      "Quantity": 1,
-                      "Price": 18.00
-                    }`;
-                    xhr.send(data);
+                    // var xhr = new XMLHttpRequest();
+                    // xhr.open("POST", "uploadImage/", true);
+                    // xhr.setRequestHeader('Content-Type', 'application/json');
+                    $.ajax({
+                        type: 'POST',
+                        // make sure you respect the same origin policy with this url:
+                        // http://en.wikipedia.org/wiki/Same_origin_policy
+                        url: '/uploadImage/',
+                        data: {
+                            'text': 'bobo',
+                            'image': base64 // <-- the $ sign in the parameter name seems unusual, I would avoid it
+                        },
+                        success: function(msg){
+                            console.log('wow ' + msg);
+                        }
+                    });
+                    // xhr.send(data);
                 };
                 sendBase64ToServer("image", image_data_url);
                 // data url of the image
@@ -98,11 +127,11 @@
         <button id="start" autoplay>
             Start Webcam
         </button>
-        <button id="stop" autoplay>
+        <button style="display: none;" id="stop" autoplay>
             Stop Webcam
         </button>
 
-        <button id="click" autoplay>
+        <button style="display: none;" id="click" autoplay>
             Click Photo
         </button>
     </center>
