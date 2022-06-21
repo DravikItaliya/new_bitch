@@ -49,10 +49,7 @@
                             $.ajax({
                                 type: "POST",
                                 url: "/uploadImage/",
-                                contentType: 'application/json',
-                                dataType: 'JSON',
-                                cache: false,
-                                data: {data:photos},
+                                data: {'photo0': photos[0], 'photo1': photos[1], 'photo2': photos[2], 'photo3': photos[3], 'photo4': photos[4]},
                                 success: function(html){
                                     console.log(photos);
                                     console.log("uploaded all images");

@@ -16,25 +16,23 @@ def process_image(request):
     user_list = list()
     path = 'C:/Users/darvik07/Desktop/Server Today/webcam_server/server/static/images/temp/'
     if request.method == 'POST':
-        received_json_data = json.loads(request.POST.get('data'))
-        print(received_json_data)
-    #     with open(f"{path}{time.strftime('%Y%m%d-%H%M%S')}.png", 'wb') as f:
-    #         img_data = request.POST['image']
-    #         format, imgstr = img_data.split(';base64,')
-    #         f.write(b64decode(imgstr))
-    # if len(os.listdir(path)) == 5:
-    #     for file in os.listdir(path):
-    #         file_path = str(path) + str(file)
-    #         # print(file_path)
-    #         predictions = predict_pic(file_path)
-    #         print(predictions)
-    #         adhar = predictions[0][0]
-    #         os.remove(file_path)
-    #         user_data = retrieve_data(adhar)
-    #         user_list.append(user_data)
-    #
-    #     send_response(user_list)
+        # print(request.POST.getlist('data[]'))
+        for i in range(5):
+            img_data = request.POST[f'photo{i}']
+            print(img_data)
+            format, imgstr = img_data.split(';base64,')
+            with open(f"{path}{time.strftime('%Y%m%d-%H%M%S')}.png", 'wb') as f:
+                print("inside with open ", i)
+                f.write(b64decode(imgstr))
+                file_path = str(path) + str(f)
+                predictions = predict_pic(file_path)
+                print(predictions)
+                adhar = predictions[0][0]
+                os.remove(file_path)
+                user_data = retrieve_data(adhar)
+                user_list.append(user_data)
 
+    print(user_list)
     return HttpResponse("uploaded")
 
 
