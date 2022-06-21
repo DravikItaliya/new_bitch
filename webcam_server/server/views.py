@@ -22,15 +22,14 @@ def process_image(request):
             print(img_data)
             format, imgstr = img_data.split(';base64,')
             with open(f"{path}{time.strftime('%Y%m%d-%H%M%S')}.png", 'wb') as f:
-                print("inside with open ", i)
                 f.write(b64decode(imgstr))
-                file_path = str(path) + str(f)
-                predictions = predict_pic(file_path)
-                print(predictions)
-                adhar = predictions[0][0]
-                os.remove(file_path)
-                user_data = retrieve_data(adhar)
-                user_list.append(user_data)
+            # file_path = str(path) + str(f)
+            # predictions = predict_pic(file_path)
+            # print(predictions)
+            # adhar = predictions[0][0]
+            # os.remove(file_path)
+            # user_data = retrieve_data(adhar)
+            # user_list.append(user_data)
 
     print(user_list)
     return HttpResponse("uploaded")
