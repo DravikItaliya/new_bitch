@@ -40,24 +40,38 @@
                         async function send_data() {
                             var photos = [];
                             for (i = 0; i < 5; i++) {
+                                await sleep(1000);
                                 canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
                                 let image_data_url = canvas.toDataURL('image/png');
                                 photos[i] = image_data_url;
-                                await sleep(1000);
                             }
-                            
                             $.ajax({
                                 type: "POST",
                                 url: "/uploadImage/",
                                 data: {'photo0': photos[0], 'photo1': photos[1], 'photo2': photos[2], 'photo3': photos[3], 'photo4': photos[4]},
-                                success: function(html){
-                                    console.log(photos);
-                                    console.log("uploaded all images");
+                                success: function(data){
+                                    print_data(data);
                                 }
                             });
                         }
 
-                        send_data();
+                        async function print_data(data) {
+                            var list_html = "<table>";
+                            $.each(data, function(key, value) {
+                                list_html += "<tr>";
+                                list_html += "<td>";
+                                list_html += key;
+                                list_html += "<td>";
+                                list_html += value;
+                                list_html += "</tr>";
+                            });
+                            list_html += "</table>";
+                            $("#data_list").html(list_html);
+                        }
+
+                        send_data().then(() => {
+                            stop.click()
+                        });
                     })
                     .catch(alert);
             });
@@ -131,8 +145,9 @@
         <button style="display: none;" id="click" autoplay>
             Click Photo
         </button>
+        <div id="data_list"> </div>
     </center>
-    <canvas id="canvas" width="320" height="240"></canvas>
+    <canvas style = "display: none;" id="canvas" width="320" height="240"></canvas>
 </body>
 
 </html>

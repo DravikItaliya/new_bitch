@@ -19,24 +19,31 @@ def process_image(request):
         # print(request.POST.getlist('data[]'))
         for i in range(5):
             img_data = request.POST[f'photo{i}']
-            print(img_data)
+            # print(img_data)
             format, imgstr = img_data.split(';base64,')
-            with open(f"{path}{time.strftime('%Y%m%d-%H%M%S')}.png", 'wb') as f:
+            with open(f"{path}{time.strftime('%Y%m%d-%H%M%S')}'m'{i}.png", 'wb') as f:
                 f.write(b64decode(imgstr))
-            # file_path = str(path) + str(f)
-            # predictions = predict_pic(file_path)
-            # print(predictions)
-            # adhar = predictions[0][0]
-            # os.remove(file_path)
-            # user_data = retrieve_data(adhar)
-            # user_list.append(user_data)
+    for f in os.listdir(path):
+        file_path = str(path) + str(f)
+        predictions = predict_pic(file_path)
+        # print(predictions)
+        if predictions:
+            adhar = predictions[0][0]
+            user_data = retrieve_data(adhar)
+            user_list.append(user_data)
+        os.remove(file_path)
 
     print(user_list)
-    return HttpResponse("uploaded")
+    for item in user_list:
+        if item['Name'] != 'unknown':
+            return HttpResponse(json.dumps(item), content_type="application/json")
+
+    return HttpResponse(json.dumps(user_list[0]), content_type="application/json")
 
 
 def retrieve_data(adhar):
     udata = defaultdict()
+    print(adhar)
     if adhar != 'unknown':
         data = Face.objects.get(adharno=adhar)
         udata['Name'] = data.name
