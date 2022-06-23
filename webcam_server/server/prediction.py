@@ -3,6 +3,8 @@ import cv2
 import face_recognition
 import os
 import warnings
+from deepface import DeepFace
+
 
 warnings.filterwarnings("ignore")
 
@@ -47,6 +49,29 @@ def predict_pic(frame):
     predictions = predict(frame, model_path="C:/Users/darvik07/Desktop/Server Today/webcam_server/server/static/models/trained_model.clf")
 
     return predictions
+
+
+def predict_adv(frame):
+    path = os.path.join(os.getcwd() + r'\server\static\images\dataset')
+    print(frame)
+    for dir in os.listdir(os.path.join(path)):
+        print(os.path.join(path, dir))
+        df = DeepFace.find(img_path=frame, db_path=os.path.join(path, dir), enforce_detection=False)
+        if not df.empty:
+            vgg_cosine_list = df['VGG-Face_cosine'].tolist()
+            print(min(vgg_cosine_list))
+            if min(vgg_cosine_list) < 0.2:
+                return dir
+
+    return 'unknown'
+
+
+def detect_face(frame):
+    file_path = frame
+    frame = cv2.imread(frame)
+    face = DeepFace.detectFace(frame, enforce_detection=False)
+    detected_face = face * 255
+    cv2.imwrite(file_path, detected_face[:, :, ::-1])
 
 # def retrieve_data(adhar):
 #     if adhar != 'unknown':
