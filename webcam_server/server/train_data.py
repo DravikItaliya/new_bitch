@@ -5,8 +5,8 @@ import cv2
 from sklearn import neighbors
 import face_recognition
 
-save_path = 'C:/Users/darvik07/Desktop/Server Today/webcam_server/server/static/images/dataset/'
-model_save_path = 'C:/Users/darvik07/Desktop/Server Today/webcam_server/server/static/models/'
+save_path = 'server/static/images/dataset/'
+model_save_path = 'server/static/models/'
 
 def train_model():
     X = []
@@ -54,7 +54,7 @@ def detect_face(image):
 
 def main():
     i = 0
-    path = 'C:/Users/darvik07/Desktop/ISMS-Final/static/dataset/'
+    path = 'server/static/dataset/'
     for dir in os.listdir(path):
         os.mkdir(save_path+dir)
         for file in os.listdir(path + "/" + dir):

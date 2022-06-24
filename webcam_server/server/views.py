@@ -14,7 +14,7 @@ import requests
 @csrf_exempt
 def process_image(request):
     user_list = list()
-    path = 'C:/Users/darvik07/Desktop/Server Today/webcam_server/server/static/images/temp/'
+    path = 'server/static/images/temp/'
     if request.method == 'POST':
         # print(request.POST.getlist('data[]'))
         for i in range(5):
